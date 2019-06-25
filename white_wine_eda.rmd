@@ -24,6 +24,8 @@ a margin line to help you keep track of this guideline!
 # want it to. This will clean up the flow of your report.
 
 library(ggplot2)
+library(PerformanceAnalytics)
+library(dplyr)
 ```
 
 This report explores a dataset that contains data on approximately 5,000 
@@ -69,14 +71,32 @@ ggplot(aes(x=fixed.acidity), data=whiteWine) +
   geom_histogram(binwidth=.25)
 ```
 
+```{r echo=FALSE, Univariate_Plots1.1}
+ggplot(aes(x=fixed.acidity), data=whiteWine) +
+  geom_histogram(binwidth=.25) +
+  coord_cartesian(xlim=c(3.5, 10.5))
+```
+
 ```{r echo=FALSE, Univariate_Plots2}
 ggplot(aes(x=volatile.acidity), data=whiteWine) +
   geom_histogram(binwidth=.02)
 ```
 
+```{r echo=FALSE, Univariate_Plots2.1}
+ggplot(aes(x=volatile.acidity), data=whiteWine) +
+  geom_histogram(binwidth=.02) +
+  coord_cartesian(xlim=c(0, .7))
+```
+
 ```{r echo=FALSE, Univariate_Plots3}
 ggplot(aes(x=citric.acid), data=whiteWine) +
   geom_histogram(binwidth=.02)
+```
+
+```{r echo=FALSE, Univariate_Plots3.1}
+ggplot(aes(x=citric.acid), data=whiteWine) +
+  geom_histogram(binwidth=.02) +
+  coord_cartesian(xlim=c(0, .8))
 ```
 
 ```{r echo=FALSE, Univariate_Plots4.1}
@@ -95,9 +115,21 @@ ggplot(aes(x=chlorides), data=whiteWine) +
   geom_histogram(binwidth=.005)
 ```
 
+```{r echo=FALSE, Univariate_Plots5.1}
+ggplot(aes(x=chlorides), data=whiteWine) +
+  geom_histogram(binwidth=.005) +
+  coord_cartesian(xlim=c(0, .1))
+```
+
 ```{r echo=FALSE, Univariate_Plots6}
 ggplot(aes(x=free.sulfur.dioxide), data=whiteWine) +
   geom_histogram(binwidth=5)
+```
+
+```{r echo=FALSE, Univariate_Plots6.1}
+ggplot(aes(x=free.sulfur.dioxide), data=whiteWine) +
+  geom_histogram(binwidth=2) +
+  coord_cartesian(xlim=c(0, 100))
 ```
 
 ```{r echo=FALSE, Univariate_Plots7}
@@ -105,9 +137,21 @@ ggplot(aes(x=total.sulfur.dioxide), data=whiteWine) +
   geom_histogram(binwidth=5)
 ```
 
+```{r echo=FALSE, Univariate_Plots7.1}
+ggplot(aes(x=total.sulfur.dioxide), data=whiteWine) +
+  geom_histogram(binwidth=5) +
+  coord_cartesian(xlim=c(0, 275))
+```
+
 ```{r echo=FALSE, Univariate_Plots8}
 ggplot(aes(x=density), data=whiteWine) +
   geom_histogram(binwidth=.001)
+```
+
+```{r echo=FALSE, Univariate_Plots8.1}
+ggplot(aes(x=density), data=whiteWine) +
+  geom_histogram(binwidth=.001) +
+  coord_cartesian(xlim=c(.985, 1.005))
 ```
 
 ```{r echo=FALSE, Univariate_Plots9}
@@ -130,10 +174,35 @@ ggplot(aes(x=quality), data=whiteWine) +
   geom_histogram(binwidth=1)
 ```
 
+```{r echo=FALSE, Univariate_Plots13}
+whiteWine = mutate(
+  whiteWine, 
+  dryness=factor(
+    case_when(
+      residual.sugar < 1 ~ 'bone_dry',
+      residual.sugar < 17 ~ 'dry',
+      residual.sugar < 35 ~ 'off_dry',
+      residual.sugar < 120 ~ 'medium_sweet',
+      residual.sugar >= 120 ~ 'sweet',
+    )
+  )
+)
+```
 
+```{r echo=FALSE, Univariate_plots14}
+whiteWine$dryness = factor(whiteWine$dryness,
+                           levels=c('bone_dry',
+                                    'dry',
+                                    'off_dry',
+                                    'medium_sweet',
+                                    'sweet'))
+```
 
-
-
+```{r echo=FALSE, Univariate_Plots15}
+whiteWine %>%
+  group_by(dryness) %>%
+  summarise(no_rows=length(dryness))
+```
 
 > **Tip**: Make sure that you leave a blank line between the start / end of
 each code block and the end / start of your Markdown text so that it is
@@ -169,8 +238,100 @@ yourself to relationships between a main output feature and one of the
 supporting variables. Try to look at relationships between supporting variables
 as well.
 
-```{r echo=FALSE, Bivariate_Plots}
+```{r echo=FALSE, Bivariate_Plots1}
+round(cor(whiteWine), 2)
+```
 
+```{r echo=FALSE, Bivariate_Plots1}
+chart.Correlation(whiteWine[c(2:13)], histogram=TRUE)
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=fixed.acidity, y=volatile.acidity), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(4, 11), 
+                  ylim=c(0, 0.8)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=citric.acid, y=volatile.acidity), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(0, .75), ylim=c(0.1, .6)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=citric.acid, y=fixed.acidity), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(0, .75), ylim=c(4, 11)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=fixed.acidity, y=pH), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(4.5, 10.5), 
+                  ylim=c(2.75, 3.75)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=free.sulfur.dioxide, y=total.sulfur.dioxide), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(0, 100), 
+                  ylim=c(0, 300)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=residual.sugar, y=density), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(1, 20), 
+                  ylim=c(.985, 1.005)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(8.5, 14), 
+                  ylim=c(0.75, 20)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=alcohol, y=density), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(8.5, 14), 
+                  ylim=c(0.985, 1.005)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(8.5, 14), 
+                  ylim=c(3.5, 8.5)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots2}
+ggplot(aes(x=volatile.acidity, y=quality), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(0.1, 0.7), 
+                  ylim=c(3.5, 8.5)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
 # Bivariate Analysis
