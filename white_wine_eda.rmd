@@ -26,6 +26,7 @@ a margin line to help you keep track of this guideline!
 library(ggplot2)
 library(PerformanceAnalytics)
 library(dplyr)
+library(RColorBrewer)
 ```
 
 This report explores a dataset that contains data on approximately 5,000 
@@ -255,7 +256,7 @@ ggplot(aes(x=fixed.acidity, y=volatile.acidity), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots3}
 ggplot(aes(x=citric.acid, y=volatile.acidity), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, .75), ylim=c(0.1, .6)) +
@@ -263,7 +264,7 @@ ggplot(aes(x=citric.acid, y=volatile.acidity), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots4}
 ggplot(aes(x=citric.acid, y=fixed.acidity), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, .75), ylim=c(4, 11)) +
@@ -271,7 +272,7 @@ ggplot(aes(x=citric.acid, y=fixed.acidity), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots5}
 ggplot(aes(x=fixed.acidity, y=pH), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(4.5, 10.5), 
@@ -280,7 +281,7 @@ ggplot(aes(x=fixed.acidity, y=pH), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots6}
 ggplot(aes(x=free.sulfur.dioxide, y=total.sulfur.dioxide), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, 100), 
@@ -289,7 +290,7 @@ ggplot(aes(x=free.sulfur.dioxide, y=total.sulfur.dioxide), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots7}
 ggplot(aes(x=residual.sugar, y=density), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(1, 20), 
@@ -298,7 +299,7 @@ ggplot(aes(x=residual.sugar, y=density), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots8}
 ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
@@ -307,7 +308,7 @@ ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots9}
 ggplot(aes(x=alcohol, y=density), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
@@ -316,7 +317,7 @@ ggplot(aes(x=alcohol, y=density), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots10}
 ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
@@ -325,10 +326,19 @@ ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
 ```
 
-```{r echo=FALSE, Bivariate_Plots2}
+```{r echo=FALSE, Bivariate_Plots11}
 ggplot(aes(x=volatile.acidity, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0.1, 0.7), 
+                  ylim=c(3.5, 8.5)) +
+  geom_smooth(method='lm', color='red') +
+  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+```
+
+```{r echo=FALSE, Bivariate_Plots12}
+ggplot(aes(x=residual.sugar, y=quality), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(0.5, 20), 
                   ylim=c(3.5, 8.5)) +
   geom_smooth(method='lm', color='red') +
   geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
@@ -358,8 +368,82 @@ create here are justified by the plots you explored in the previous section. If
 you plan on creating any mathematical models, this is the section where you
 will do that.
 
-```{r echo=FALSE, Multivariate_Plots}
+```{r echo=FALSE, Multivariate_Plots0}
+whiteWine$quality.factor = factor(whiteWine$quality)
+```
 
+```{r echo=FALSE, Multivariate_Plots1}
+ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(ylim=c(0, 25)) +
+  scale_color_brewer()
+```
+
+```{r echo=FALSE, Multivariate_Plots2}
+ggplot(aes(x=alcohol, y=quality.factor), data=whiteWine) +
+  geom_point(aes(color=dryness)) +
+  #coord_cartesian(ylim=c(0, 25)) +
+  scale_color_brewer(palette='Dark2')
+```
+
+```{r echo=FALSE, Multivariate_Plots3}
+ggplot(aes(x=quality.factor, y=alcohol), data=whiteWine) +
+  geom_boxplot(aes(color=dryness)) +
+  scale_color_brewer(palette='Dark2')
+```
+
+```{r echo=FALSE, Multivariate_Plots4}
+ggplot(aes(x=alcohol/density, y=residual.sugar), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(ylim=c(0, 20)) +
+  scale_color_brewer(palette='Greens')
+```
+
+```{r echo=FALSE, Multivariate_Plots5}
+ggplot(aes(x=alcohol, y=volatile.acidity), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(ylim=c(0, .75)) +
+  scale_color_brewer(palette='Purples')
+```
+
+```{r echo=FALSE, Multivariate_Plots6}
+ggplot(aes(x=alcohol, y=volatile.acidity), data=subset(whiteWine, dryness!='medium_sweet')) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(ylim=c(0, .75)) +
+  scale_color_brewer(palette='Purples') +
+  facet_wrap(~dryness) +
+  aes(title='Facet Wrap by dryness')
+```
+
+```{r echo=FALSE, Multivariate_Plots7}
+ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
+  scale_color_brewer(palette='Reds')
+```
+
+```{r echo=FALSE, Multivariate_Plots8}
+ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
+  geom_point(aes(color=dryness)) +
+  coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
+  scale_color_brewer(palette='Dark2') +
+  facet_wrap(~quality.factor) +
+  aes(title='Facet Wrap by quality')
+```
+
+```{r echo=FALSE, Multivariate_Plots9}
+ggplot(aes(x=quality.factor, y=residual.sugar/alcohol), data=whiteWine) +
+  geom_boxplot()
+```
+
+```{r echo=FALSE, Multivariate_Plots10}
+ggplot(aes(x=quality.factor, y=volatile.acidity/alcohol), data=whiteWine) +
+  geom_boxplot()
+```
+
+```{r echo=FALSE, Multivariate_Plots11}
+ggplot(aes(x=quality.factor, y=citric.acid/residual.sugar), data=whiteWine) +
+  geom_boxplot()
 ```
 
 # Multivariate Analysis
@@ -387,7 +471,10 @@ make sure you justify why you chose each plot by describing what it shows.
 
 ### Plot One
 ```{r echo=FALSE, Plot_One}
-
+ggplot(aes(x=residual.sugar), data=whiteWine) +
+  geom_histogram(binwidth=.05) +
+  scale_x_log10() +
+  aes(title='Log_10 of Residual Sugars')
 ```
 
 ### Description One
@@ -395,7 +482,13 @@ make sure you justify why you chose each plot by describing what it shows.
 
 ### Plot Two
 ```{r echo=FALSE, Plot_Two}
-
+ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
+  geom_point(alpha=1/10, position='jitter') +
+  coord_cartesian(xlim=c(8.5, 14), 
+                  ylim=c(3.5, 8.5)) +
+  geom_smooth(method='lm', color='red') +
+  #geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5)) +
+  aes(title='% Alcohol vs. Quality Rating')
 ```
 
 ### Description Two
@@ -403,7 +496,11 @@ make sure you justify why you chose each plot by describing what it shows.
 
 ### Plot Three
 ```{r echo=FALSE, Plot_Three}
-
+ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
+  scale_color_brewer(palette='Reds') +
+  aes(title='Residual Sugars vs. Total Sulfur Dioxide/Alcohol and Quality')
 ```
 
 ### Description Three
