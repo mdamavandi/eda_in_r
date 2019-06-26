@@ -53,10 +53,6 @@ str(whiteWine)
 summary(whiteWine)
 ```
 
-> **Tip**: Before you create any plots, it is a good idea to provide a short
-introduction into the dataset that you are planning to explore. Replace this
-quoted text with that general information!
-
 > **Tip**: In this section, you should perform some preliminary exploration of
 your dataset. Run some summaries of the data and create univariate plots to
 understand the structure of the individual variables in your dataset. Don't
@@ -78,6 +74,9 @@ ggplot(aes(x=fixed.acidity), data=whiteWine) +
   coord_cartesian(xlim=c(3.5, 10.5))
 ```
 
+These histograms shows the distribution of tartaric acid in grams acid per 
+liter of wine. 
+
 ```{r echo=FALSE, Univariate_Plots2}
 ggplot(aes(x=volatile.acidity), data=whiteWine) +
   geom_histogram(binwidth=.02)
@@ -88,6 +87,11 @@ ggplot(aes(x=volatile.acidity), data=whiteWine) +
   geom_histogram(binwidth=.02) +
   coord_cartesian(xlim=c(0, .7))
 ```
+
+These histograms show the distribution of acetic acid in the wines. The data is 
+slightly skewed-right, but not enough to warrant a log transformation. Wines 
+with high levels of volatile acidity may be good for cooking, since they often 
+have a vinegar-like taste.
 
 ```{r echo=FALSE, Univariate_Plots3}
 ggplot(aes(x=citric.acid), data=whiteWine) +
@@ -100,6 +104,10 @@ ggplot(aes(x=citric.acid), data=whiteWine) +
   coord_cartesian(xlim=c(0, .8))
 ```
 
+These histograms show the distribution of citric acid in the wines. I wonder 
+how this affects the quality rating of the wines, if mediocre levels have 
+higher quality ratings or not.
+
 ```{r echo=FALSE, Univariate_Plots4.1}
 ggplot(aes(x=residual.sugar), data=whiteWine) +
   geom_histogram(binwidth=1)
@@ -110,6 +118,12 @@ ggplot(aes(x=residual.sugar), data=whiteWine) +
   geom_histogram(binwidth=.05) +
   scale_x_log10()
 ```
+
+These histograms show the distribution of residual sugars found in the wines. 
+I felt like the data was sufficiently skewed-right to try a log transformation 
+on the data. We can see interesting bimodal behavior here. I would think that 
+higher residual sugars would lead to a better tasting and thus better quality 
+wine.
 
 ```{r echo=FALSE, Univariate_Plots5}
 ggplot(aes(x=chlorides), data=whiteWine) +
@@ -122,6 +136,8 @@ ggplot(aes(x=chlorides), data=whiteWine) +
   coord_cartesian(xlim=c(0, .1))
 ```
 
+These histograms show the distribution of the chlorides or salt in the wines.
+
 ```{r echo=FALSE, Univariate_Plots6}
 ggplot(aes(x=free.sulfur.dioxide), data=whiteWine) +
   geom_histogram(binwidth=5)
@@ -132,6 +148,9 @@ ggplot(aes(x=free.sulfur.dioxide), data=whiteWine) +
   geom_histogram(binwidth=2) +
   coord_cartesian(xlim=c(0, 100))
 ```
+
+These plots show the distribution of free sulfur dioxide (this prevents 
+microbial growth and oxidation of wines). 
 
 ```{r echo=FALSE, Univariate_Plots7}
 ggplot(aes(x=total.sulfur.dioxide), data=whiteWine) +
@@ -144,6 +163,9 @@ ggplot(aes(x=total.sulfur.dioxide), data=whiteWine) +
   coord_cartesian(xlim=c(0, 275))
 ```
 
+These histograms show us the distibution of total sulfur dioxide. High levels 
+of sulfur dioxide can affect the taste of wines.
+
 ```{r echo=FALSE, Univariate_Plots8}
 ggplot(aes(x=density), data=whiteWine) +
   geom_histogram(binwidth=.001)
@@ -155,25 +177,50 @@ ggplot(aes(x=density), data=whiteWine) +
   coord_cartesian(xlim=c(.985, 1.005))
 ```
 
+These plots show us the distribution of the density of the wines. Nothing 
+really seems amiss here, the density of alcohol is less than that of water 
+(which has a density of 1).
+
 ```{r echo=FALSE, Univariate_Plots9}
 ggplot(aes(x=pH), data=whiteWine) +
   geom_histogram(binwidth=.02)
 ```
+
+This distribution shows us the distribution of the pH levels of the wines. I 
+would assume these correlate with the acidity values.
 
 ```{r echo=FALSE, Univariate_Plots10}
 ggplot(aes(x=sulphates), data=whiteWine) +
   geom_histogram(binwidth=.01)
 ```
 
+This histogram shows us the distribution of the sulphates in the wines. It is 
+slightly skewed-right, but not very much.
+
 ```{r echo=FALSE, Univariate_Plots11}
 ggplot(aes(x=alcohol), data=whiteWine) +
   geom_histogram(binwidth=.1)
 ```
 
+```{r echo=FALSE, Univariate_Plots11.1}
+ggplot(aes(x=alcohol), data=whiteWine) +
+  geom_histogram(binwidth=.01) +
+  scale_x_log10()
+```
+
+These plots show the distribution of the % alcohol of the wines. The data is 
+slightly skewed-right, so I also plotted it with a log transformation. I don't 
+know that the log transform really does anything to help us understand the 
+data. It would be interesting to see how the % alcohol correlates with the 
+quality score.
+
 ```{r echo=FALSE, Univariate_Plots12}
 ggplot(aes(x=quality), data=whiteWine) +
   geom_histogram(binwidth=1)
 ```
+
+This histogram shows the distribution of the quality scores of the wine. They 
+were give on a scale from 0 to 10. The scores only fall between three and nine.
 
 ```{r echo=FALSE, Univariate_Plots13}
 whiteWine = mutate(
@@ -198,6 +245,14 @@ whiteWine$dryness = factor(whiteWine$dryness,
                                     'medium_sweet',
                                     'sweet'))
 ```
+
+I've heard people talk about a wine being dry. After doing some research, there 
+are many levels of dryness, so I decided to create a factor to see how many 
+types of wines were in the data set (the factors were based off of the 
+infographic on this website 
+https://winefolly.com/review/what-is-residual-sugar-in-wine/ ). Most of the 
+wines that we have data for are dry. Since the distribution isn't even, I don't 
+know how useful this factor will be.
 
 ```{r echo=FALSE, Univariate_Plots15}
 whiteWine %>%
@@ -407,7 +462,8 @@ ggplot(aes(x=alcohol, y=volatile.acidity), data=whiteWine) +
 ```
 
 ```{r echo=FALSE, Multivariate_Plots6}
-ggplot(aes(x=alcohol, y=volatile.acidity), data=subset(whiteWine, dryness!='medium_sweet')) +
+ggplot(aes(x=alcohol, y=volatile.acidity), 
+       data=subset(whiteWine, dryness!='medium_sweet')) +
   geom_point(aes(color=quality.factor)) +
   coord_cartesian(ylim=c(0, .75)) +
   scale_color_brewer(palette='Purples') +
