@@ -1,14 +1,5 @@
-TITLE by YOUR_NAME_HERE
+Wine Exploration by Mack Damavandi
 ========================================================
-
-> **Tip**: You will see quoted sections like this throughout the template to
-help you construct your report. Make sure that you remove these notes before
-you finish and submit your project!
-
-> **Tip**: One of the requirements of this project is that your code follows
-good formatting techniques, including limiting your lines to 80 characters or
-less. If you're using RStudio, go into Preferences \> Code \> Display to set up
-a margin line to help you keep track of this guideline!
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
 # Load all of the packages that you end up using in your analysis in this code
@@ -50,15 +41,8 @@ str(whiteWine)
 ```
 
 ```{r echo=FALSE, Describe_the_Data2}
-summary(whiteWine)
+summary(whiteWine[c(2:13)])
 ```
-
-> **Tip**: In this section, you should perform some preliminary exploration of
-your dataset. Run some summaries of the data and create univariate plots to
-understand the structure of the individual variables in your dataset. Don't
-forget to add a comment after each plot or closely-related group of plots!
-There should be multiple code chunks and text sections; the first one below is
-just to help you get started.
 
 This dataset contains 11 attributes that describe white wine and one attribute
 that is a rating of the quality of the white wine by a wine expert.
@@ -220,7 +204,13 @@ ggplot(aes(x=quality), data=whiteWine) +
 ```
 
 This histogram shows the distribution of the quality scores of the wine. They 
-were give on a scale from 0 to 10. The scores only fall between three and nine.
+were give on a scale from 0 to 10. The scores only fall between three and nine. Quality for wine is an interesting metric because it gives an objective value to something that is actually inherently subjective (see https://www.dummies.com/food-drink/drinks/wine/rating-wine-quality/ ).
+
+```{r echo=FALSE, Univariate_Plots16}
+whiteWine %>%
+  group_by(quality) %>%
+  summarise(no_rows=length(quality))
+```
 
 ```{r echo=FALSE, Univariate_Plots13}
 whiteWine = mutate(
@@ -260,172 +250,188 @@ whiteWine %>%
   summarise(no_rows=length(dryness))
 ```
 
-> **Tip**: Make sure that you leave a blank line between the start / end of
-each code block and the end / start of your Markdown text so that it is
-formatted nicely in the knitted text. Note as well that text on consecutive
-lines is treated as a single space. Make sure you have a blank line between
-your paragraphs so that they too are formatted for easy readability.
-
 # Univariate Analysis
-
-> **Tip**: Now that you've completed your univariate explorations, it's time to
-reflect on and summarize what you've found. Use the questions below to help you
-gather your observations and add your own if you have other thoughts!
 
 ### What is the structure of your dataset?
 
+There are 4,898 wines in the dataset with 12 attributes (fixed acidity, 
+volatile acidity, citric acid, residual sugar, chlorides, free sulfur dioxide, 
+total sulfur dioxide, density, pH, sulphates, alcohol, and quality).
+
+I had a few other observations:
+
+- 95.1% of the wines can be classified as dry.
+- The median amount of residual sugar is 5.2 g/L and the max is 65.8 g/L.
+- 92.6% of the wines have a quality rating of 5, 6, or 7 with the most of these
+having a quality score of 6.
+
 ### What is/are the main feature(s) of interest in your dataset?
 
+I would say that the man features of interest for me are citric acid, residual sugar, alcohol and quality. I don't think I'll be able to determine which wines are best for cooking from this dataset, but I think the right combination of these attributes would make for the highest quality wine.
+
 ### What other features in the dataset do you think will help support your \
-investigation into your feature(s) of interest?
+###investigation into your feature(s) of interest?
+
+I think that the volatile and fixed acidity may help support my investigation. The chlorides may also help.
 
 ### Did you create any new variables from existing variables in the dataset?
 
+I have often heard people talk about a wine being 'dry.' The dryness of a wine can be determined by how much residual sugar there is in the wine. I created a factor based on some information I found. A wine with less than 1 g/L of residual sugar would be considered 'bone dry.' 'Dry' wines have between 1 g/L and 17 g/L residual sugar. 'Off dry' wines have up to 35 g/L residual sugar. 'Medium sweet' wines will have between 35 g/L residual sugar and 120 g/L residual sugar. Any wine with over 120 g/L residual sugar would be considered sweet. Most wines in this dataset would fall in the 'dry' category.
+
 ### Of the features you investigated, were there any unusual distributions? \
-Did you perform any operations on the data to tidy, adjust, or change the form \
-of the data? If so, why did you do this?
+###Did you perform any operations on the data to tidy, adjust, or change the 
+###form of the data? If so, why did you do this?
+
+I was lucky and my dataset was already tidy and wasn't missing any data. I did perform a log transformation on the residual sugar and alcohol columns. The alcohol column wasn't very skewed-right and I didn't feel that the log transformation really helped me understand the data better. However, the transform of residual sugar was very interesting. The distribution appears to be bimodal with peaks at approximately 1.5 g/L and 10 g/L.
 
 
 # Bivariate Plots Section
 
-> **Tip**: Based on what you saw in the univariate plots, what relationships
-between variables might be interesting to look at in this section? Don't limit
-yourself to relationships between a main output feature and one of the
-supporting variables. Try to look at relationships between supporting variables
-as well.
-
 ```{r echo=FALSE, Bivariate_Plots1}
-round(cor(whiteWine), 2)
+round(cor(whiteWine[c(2:13)]), 2)
 ```
 
-```{r echo=FALSE, Bivariate_Plots1}
-chart.Correlation(whiteWine[c(2:13)], histogram=TRUE)
+The residual sugar value has a strong correlation with density. The free sulfur dioxide and total sulfur dioxide also correlate, which makes sense since free sulfur dioxide is a subset of total sulfur dioxide. The strongest correlation with quality is the measure of alcohol in the wine which is also interesting.
+
+```{r echo=FALSE, Bivariate_Plots1.1}
+chart.Correlation(whiteWine[c(4:6,8:13)], histogram=TRUE)
 ```
+
+I want to examine a little about the relationship between the acids listed in the dataset. It appears that volatile acidity and fixed acidity don't really correlate with each other.
 
 ```{r echo=FALSE, Bivariate_Plots2}
 ggplot(aes(x=fixed.acidity, y=volatile.acidity), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(4, 11), 
                   ylim=c(0, 0.8)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+Citric acid and volatile acidity have a slight negative correlation.
 
 ```{r echo=FALSE, Bivariate_Plots3}
 ggplot(aes(x=citric.acid, y=volatile.acidity), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, .75), ylim=c(0.1, .6)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+Citric acid and fixed acidity have a slight positive correlation. I would guess that citric acid is probably a subset of fixed acidity.
 
 ```{r echo=FALSE, Bivariate_Plots4}
 ggplot(aes(x=citric.acid, y=fixed.acidity), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, .75), ylim=c(4, 11)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+There is an interesting grouping of wines with a citric acid level of approximately 0.5 g/L. I wonder if all these wines are fermented in the same way or made by the same manufacturer. There could be some other scientific explanation as well.
+
+We can also see the negative relationship between acidity and pH beow. As the fixed acidity increases pH decreases.
 
 ```{r echo=FALSE, Bivariate_Plots5}
 ggplot(aes(x=fixed.acidity, y=pH), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(4.5, 10.5), 
                   ylim=c(2.75, 3.75)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+We can also see the relationship between the free sulfur dioxide and the total sulfur dioxide. As stated above, this makes sense because free sulfur dioxide would be a subset of the total sulfur dioxide.
 
 ```{r echo=FALSE, Bivariate_Plots6}
 ggplot(aes(x=free.sulfur.dioxide, y=total.sulfur.dioxide), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0, 100), 
                   ylim=c(0, 300)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+The relationship between residual sugar and density was one that I didn't really think about beforehand, but it does make sense. The more sugar is left in the wine at the end of its fermentation process, the more weighty it will be and will thus have a greater density.
 
 ```{r echo=FALSE, Bivariate_Plots7}
 ggplot(aes(x=residual.sugar, y=density), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(1, 20), 
                   ylim=c(.985, 1.005)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+The correlation between residual sugar and alcohol is also interesting. I'm not sure why they would be negatively correlated.
 
 ```{r echo=FALSE, Bivariate_Plots8}
 ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
                   ylim=c(0.75, 20)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+After I did a little research, the correlation between density and alcohol also makes sense. Alcohol is less dense than water (which has a density of 1), so the more alcohol is in the wine, the less dense it will be.
 
 ```{r echo=FALSE, Bivariate_Plots9}
 ggplot(aes(x=alcohol, y=density), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
                   ylim=c(0.985, 1.005)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+One of the most interesting relationships is that of alcohol to quality. In my mind, this could highlight the subjectivity of the quality scores that were given to the wine. 
 
 ```{r echo=FALSE, Bivariate_Plots10}
 ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
                   ylim=c(3.5, 8.5)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
 
+There isn't any correlation between citric acid and the quality of the wine.
+
 ```{r echo=FALSE, Bivariate_Plots11}
-ggplot(aes(x=volatile.acidity, y=quality), data=whiteWine) +
+ggplot(aes(x=citric.acid, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0.1, 0.7), 
                   ylim=c(3.5, 8.5)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
+
+The correlation between the quality of the wine and the residual sugar is slightly negative. This is also counter-intuitive to me. As someone who doesn't drink wine, I would think that a little more sugar would make it more pleasant, but that seems not to be the case.
 
 ```{r echo=FALSE, Bivariate_Plots12}
 ggplot(aes(x=residual.sugar, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(0.5, 20), 
                   ylim=c(3.5, 8.5)) +
-  geom_smooth(method='lm', color='red') +
-  geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5))
+  geom_smooth(method='lm', color='red')
 ```
 
 # Bivariate Analysis
 
-> **Tip**: As before, summarize what you found in your bivariate explorations
-here. Use the questions below to guide your discussion.
-
 ### Talk about some of the relationships you observed in this part of the \
-investigation. How did the feature(s) of interest vary with other features in \
-the dataset?
+###investigation. How did the feature(s) of interest vary with other features \
+###in the dataset?
+
+For the most part, my features of interest really only had strong relationships with themselves. Citric acid was the only one that didn't really relate with anything besides the acidity values and pH. Both residual sugar and alcohol had a strong relationship with the density of the wine though, but I don't think density would really affect the quality of the wine, especially since it is still so close to the density of water. 
 
 ### Did you observe any interesting relationships between the other features \
-(not the main feature(s) of interest)?
+###(not the main feature(s) of interest)?
+
+I would have thought that the relationship between citric acid and volatile acidity would be positive, but it was negative. I would have to do some more research to understand why that is.
 
 ### What was the strongest relationship you found?
+
+The strongest relationship that I found was between residual sugar and density, with a correlation coefficient of 0.84. The next strongest was between density and alcohol, with a correlation coefficient of -0.78.
 
 
 # Multivariate Plots Section
 
-> **Tip**: Now it's time to put everything together. Based on what you found in
-the bivariate plots section, create a few multivariate plots to investigate
-more complex interactions between variables. Make sure that the plots that you
-create here are justified by the plots you explored in the previous section. If
-you plan on creating any mathematical models, this is the section where you
-will do that.
-
 ```{r echo=FALSE, Multivariate_Plots0}
 whiteWine$quality.factor = factor(whiteWine$quality)
 ```
+
+The new variable, quality.factor, factor in R based on the quality. Theredoesn't appear to be any significant grouping other than the higher quality wines typically having a higher alcohol content.
 
 ```{r echo=FALSE, Multivariate_Plots1}
 ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
@@ -433,6 +439,8 @@ ggplot(aes(x=alcohol, y=residual.sugar), data=whiteWine) +
   coord_cartesian(ylim=c(0, 25)) +
   scale_color_brewer()
 ```
+
+These plots use the other factor, dryness. It doesn't really appear to be the case that the dryness affects the quality of the rating at all.
 
 ```{r echo=FALSE, Multivariate_Plots2}
 ggplot(aes(x=alcohol, y=quality.factor), data=whiteWine) +
@@ -444,8 +452,12 @@ ggplot(aes(x=alcohol, y=quality.factor), data=whiteWine) +
 ```{r echo=FALSE, Multivariate_Plots3}
 ggplot(aes(x=quality.factor, y=alcohol), data=whiteWine) +
   geom_boxplot(aes(color=dryness)) +
-  scale_color_brewer(palette='Dark2')
+  scale_color_brewer(palette='Dark2') +
+  facet_wrap(~dryness) +
+  aes(title='Facet wrap by dryness')
 ```
+
+Plotting alcohol/density vs. residual sugar gives us a plot very similar to alcohol vs residual sugar. This makes sense since the density values are very close to 1.
 
 ```{r echo=FALSE, Multivariate_Plots4}
 ggplot(aes(x=alcohol/density, y=residual.sugar), data=whiteWine) +
@@ -454,15 +466,19 @@ ggplot(aes(x=alcohol/density, y=residual.sugar), data=whiteWine) +
   scale_color_brewer(palette='Greens')
 ```
 
+Since there isn't much of a relationship between citric acid and quality, it seems like the % alcohol is really pulling the darker points to the right on this plot.
+
 ```{r echo=FALSE, Multivariate_Plots5}
-ggplot(aes(x=alcohol, y=volatile.acidity), data=whiteWine) +
+ggplot(aes(x=alcohol, y=citric.acid), data=whiteWine) +
   geom_point(aes(color=quality.factor)) +
   coord_cartesian(ylim=c(0, .75)) +
   scale_color_brewer(palette='Purples')
 ```
 
+I was also interested in how dryness might play a role. It is difficult to tell since so many of our observations are from dry wines.
+
 ```{r echo=FALSE, Multivariate_Plots6}
-ggplot(aes(x=alcohol, y=volatile.acidity), 
+ggplot(aes(x=alcohol, y=citric.acid), 
        data=subset(whiteWine, dryness!='medium_sweet')) +
   geom_point(aes(color=quality.factor)) +
   coord_cartesian(ylim=c(0, .75)) +
@@ -471,14 +487,25 @@ ggplot(aes(x=alcohol, y=volatile.acidity),
   aes(title='Facet Wrap by dryness')
 ```
 
+The plot below is somewhat interesting. It seems like The higher quality wines (those rated 7 or above) are really pulled into the bottom right corner. Meaning that a low ratio of citric acid to sugar, and a high alcohol content would lead to a higher quality wine.
+
 ```{r echo=FALSE, Multivariate_Plots7}
+ggplot(aes(x=alcohol, y=citric.acid/residual.sugar), data=whiteWine) +
+  geom_point(aes(color=quality.factor)) +
+  coord_cartesian(ylim=c(0, .5)) +
+  scale_color_brewer(palette='Reds')
+```
+
+I did a little more research on wine and found that the total sulfur dioxide can affect something called the 'nose' of the wine (basically the smell/taste relationship). It seems that the highest concentration of wines with quality scores 7 or above have total sulfur dioxide to alcohol rations between 5 and 20, with a lower residual sugar still giving a higher quality wine.
+
+```{r echo=FALSE, Multivariate_Plots8}
 ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
   geom_point(aes(color=quality.factor)) +
   coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
   scale_color_brewer(palette='Reds')
 ```
 
-```{r echo=FALSE, Multivariate_Plots8}
+```{r echo=FALSE, Multivariate_Plots9}
 ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
   geom_point(aes(color=dryness)) +
   coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
@@ -487,17 +514,23 @@ ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
   aes(title='Facet Wrap by quality')
 ```
 
-```{r echo=FALSE, Multivariate_Plots9}
+It appears the median residual sugar to alcohol ratio is lowest for quality 9 wines, but the median residual sugar to alcohol ratio for wines of quality 4 is also very low.
+
+```{r echo=FALSE, Multivariate_Plots10}
 ggplot(aes(x=quality.factor, y=residual.sugar/alcohol), data=whiteWine) +
   geom_boxplot()
 ```
 
-```{r echo=FALSE, Multivariate_Plots10}
-ggplot(aes(x=quality.factor, y=volatile.acidity/alcohol), data=whiteWine) +
+The median citric acid to alcohol ratio is very similar for any quality of wine.
+
+```{r echo=FALSE, Multivariate_Plots11}
+ggplot(aes(x=quality.factor, y=citric.acid/alcohol), data=whiteWine) +
   geom_boxplot()
 ```
 
-```{r echo=FALSE, Multivariate_Plots11}
+The median citric acid to residual sugar ratio is highest for wines of quality 9.
+
+```{r echo=FALSE, Multivariate_Plots12}
 ggplot(aes(x=quality.factor, y=citric.acid/residual.sugar), data=whiteWine) +
   geom_boxplot()
 ```
@@ -505,70 +538,74 @@ ggplot(aes(x=quality.factor, y=citric.acid/residual.sugar), data=whiteWine) +
 # Multivariate Analysis
 
 ### Talk about some of the relationships you observed in this part of the \
-investigation. Were there features that strengthened each other in terms of \
-looking at your feature(s) of interest?
+###investigation. Were there features that strengthened each other in terms of \
+##looking at your feature(s) of interest?
+
+It was difficult to distinguish what attributes could accurately predict the quality of the wines. I would suggest that this probably has to do with the subjectivity of the quality score. The attribute that helped me see the best relationship was total sulfur dioxide to alcohol ratio. We could see a somewhat distinct grouping of higher quality wines.
 
 ### Were there any interesting or surprising interactions between features?
 
-### OPTIONAL: Did you create any models with your dataset? Discuss the \
-strengths and limitations of your model.
+The most interesting interaction between features came when I plotted alcohol vs. citric acid to residual sugar ratio and colored the points by quality. The highest quality wines were pulled to the right and down, while the lowest quality wines were pulled to the left. This suggests that a higher quality wine wil have a low citric acid to residual sugar ratio along with a higher alcohol content.
 
 ------
 
 # Final Plots and Summary
 
-> **Tip**: You've done a lot of exploration and have built up an understanding
-of the structure of and relationships between the variables in your dataset.
-Here, you will select three plots from all of your previous exploration to
-present here as a summary of some of your most interesting findings. Make sure
-that you have refined your selected plots for good titling, axis labels (with
-units), and good aesthetic choices (e.g. color, transparency). After each plot,
-make sure you justify why you chose each plot by describing what it shows.
-
 ### Plot One
+
 ```{r echo=FALSE, Plot_One}
 ggplot(aes(x=residual.sugar), data=whiteWine) +
   geom_histogram(binwidth=.05) +
   scale_x_log10() +
-  aes(title='Log_10 of Residual Sugars')
+  aes(title='Log_10 of Residual Sugars') +
+  labs(x='Residual Sugar in g/L',
+       y='Number of Wines')
 ```
 
 ### Description One
 
+The distribution of residual sugars appear to be bimodal on a log scale peaking at approximately 1.5 g/L and 10 g/L.
 
 ### Plot Two
+
 ```{r echo=FALSE, Plot_Two}
 ggplot(aes(x=alcohol, y=quality), data=whiteWine) +
   geom_point(alpha=1/10, position='jitter') +
   coord_cartesian(xlim=c(8.5, 14), 
                   ylim=c(3.5, 8.5)) +
   geom_smooth(method='lm', color='red') +
-  #geom_line(stat='summary', fun.y=quantile, fun.args=list(probs=.5)) +
-  aes(title='% Alcohol vs. Quality Rating')
+  aes(title='% Alcohol vs. Quality Rating') +
+  labs(x='% Alcohol',
+       y='Quality Rating')
 ```
 
 ### Description Two
 
+Wines with higher alcohol contents were typically scored higher than wines with lower alcohol contents.
 
 ### Plot Three
+
 ```{r echo=FALSE, Plot_Three}
-ggplot(aes(x=residual.sugar, y=total.sulfur.dioxide/alcohol), data=whiteWine) +
+ggplot(aes(x=alcohol, y=citric.acid/residual.sugar), data=whiteWine) +
   geom_point(aes(color=quality.factor)) +
-  coord_cartesian(xlim=c(0, 20), ylim=c(0, 30)) +
+  coord_cartesian(ylim=c(0, .5)) +
   scale_color_brewer(palette='Reds') +
-  aes(title='Residual Sugars vs. Total Sulfur Dioxide/Alcohol and Quality')
+  aes(title='% Alcohol vs. Citric Acid / Residual Sugar and Quality') +
+  labs(x='% Alcohol',
+       y='Citric Acid in g/L / Residual Sugar in g/L',
+       color='Quality Rating')
 ```
 
 ### Description Three
+
+Quality of wine could potentially be predicted by some kind of polynomic model, with alchol and the ratio of citric acid to residual sugar as the input variables.
 
 ------
 
 # Reflection
 
-> **Tip**: Here's the final step! Reflect on the exploration you performed and
-the insights you found. What were some of the struggles that you went through?
-What went well? What was surprising? Make sure you include an insight into
-future work that could be done with the dataset.
+I don't have much experience with wines, but it was very interesting to explore these 4,898 observations and the 12 variables that were gathered on them. I explored the quality of the wines across these variables.
 
-> **Tip**: Don't forget to remove this, and the other **Tip** sections before
-saving your final work and knitting the final report!
+This exploration was difficult. I struggled to find meaningful relationships that would appropriately predict the quality of wines. I believe that has to do with the subjectivity of the quality metric. If there was a more objective score, then it might be easier. But coming up with an objective score for something that is so personal would be hard to do.
+
+For future iterations of this work, it would be interesting to build a model that could predict the quality based on some of the relationships that I found. I would also like to do some more research about which wines are best for cooking and see if that could be predicted from the 12 variables we have here.
